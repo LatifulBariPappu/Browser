@@ -4,9 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.renderscript.ScriptGroup;
 import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView clearUrl;
     WebView webView;
     ProgressBar progressBar;
+    ImageView webBack,webForward,webRefresh,webShare;
+
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,11 @@ public class MainActivity extends AppCompatActivity {
         clearUrl=findViewById(R.id.clear_icon);
         progressBar=findViewById(R.id.progress_bar);
         webView = findViewById(R.id.web_view);
+
+        webBack=findViewById(R.id.web_back);
+        webForward=findViewById(R.id.web_forward);
+        webRefresh=findViewById(R.id.web_refresh);
+        webShare=findViewById(R.id.web_share);
 
         WebSettings webSettings=webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -63,6 +70,38 @@ public class MainActivity extends AppCompatActivity {
         });
         clearUrl.setOnClickListener(v -> urlInput.setText(""));
 
+        webBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(webView.canGoBack()){
+                    webView.goBack();
+                }
+            }
+        });
+        webForward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(webView.canGoForward()){
+                    webView.goForward();
+                }
+            }
+        });
+        webRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                webView.reload();
+            }
+        });
+        webShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(Intent.ACTION_VIEW);
+                intent.setAction(Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_TEXT,webView.getUrl());
+                intent.setType("text/plain");
+                startActivity(intent);
+            }
+        });
     }
 
     void loadMyUrl(String url){
@@ -81,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
         }else {
             super.onBackPressed();
         }
-        super.onBackPressed();
     }
 
     class MyWebViewClient extends WebViewClient{
@@ -93,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
+            urlInput.setText(webView.getUrl());
             progressBar.setVisibility(View.VISIBLE);
         }
 
